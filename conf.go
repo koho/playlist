@@ -4,6 +4,7 @@ import (
 	"gopkg.in/yaml.v3"
 	"log"
 	"os"
+	"runtime"
 )
 
 type Group struct {
@@ -20,18 +21,32 @@ type Group struct {
 	Password string `yaml:"password"`
 }
 
+type Thumb struct {
+	// Dir is where the thumbnail of media file stored.
+	Dir string `yaml:"dir"`
+	// Workers is the number of worker processes to generate thumbnails in parallel.
+	// Default is the half of logical CPUs.
+	Workers int `yaml:"workers"`
+	// Size sets the output thumbnail size. Default is 640:360.
+	Size string `yaml:"size"`
+}
+
 type Config struct {
 	// Listen address of the web server.
 	Listen string `yaml:"listen"`
-	// Thumbs is where the thumbnail of media file stored.
-	Thumbs string `yaml:"thumbs"`
+	// Thumb is where the thumbnail of media file stored.
+	Thumb Thumb `yaml:"thumb"`
 	// All your media Groups.
 	Groups []Group `yaml:"groups"`
 }
 
 var config = Config{
 	Listen: ":6300",
-	Thumbs: "thumbs",
+	Thumb: Thumb{
+		Dir:     "thumbs",
+		Workers: runtime.NumCPU() / 2,
+		Size:    "640:360",
+	},
 }
 
 func init() {

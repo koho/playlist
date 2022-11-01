@@ -5,14 +5,13 @@ import (
 	"github.com/panjf2000/ants/v2"
 	"log"
 	"path/filepath"
-	"runtime"
 )
 
 var tasks *ants.Pool
 
 func main() {
 	var err error
-	tasks, err = ants.NewPool(runtime.NumCPU() - 1)
+	tasks, err = ants.NewPool(config.Thumb.Workers)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -25,7 +24,7 @@ func main() {
 		if g.Username != "" {
 			group.Use(gin.BasicAuth(gin.Accounts{g.Username: g.Password}))
 		}
-		group.Static("/thumbs", filepath.Join(config.Thumbs, g.Name))
+		group.Static("/thumbs", filepath.Join(config.Thumb.Dir, g.Name))
 		group.Static("/data", g.Path)
 		group.GET("", func(gp Group) gin.HandlerFunc {
 			return func(c *gin.Context) {

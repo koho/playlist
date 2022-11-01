@@ -22,7 +22,7 @@ func getPlayList(c *gin.Context, group Group) {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	thumbDir := filepath.Join(config.Thumbs, group.Name)
+	thumbDir := filepath.Join(config.Thumb.Dir, group.Name)
 	if err = os.MkdirAll(thumbDir, 0755); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return

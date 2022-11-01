@@ -1,10 +1,15 @@
 package main
 
 import (
+	"bytes"
+	"fmt"
 	"github.com/samber/lo"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
+	"strings"
 	"sync"
 )
 
@@ -14,7 +19,20 @@ func GenerateThumb(mediaPath string, thumbPath string) error {
 	if !IsVideo(mediaPath) {
 		return os.ErrInvalid
 	}
-	cmd := exec.Command("ffmpeg", "-i", mediaPath, "-vf", "thumbnail=200,scale=640:360", "-vframes", "1", "-y", thumbPath)
+	// Get the total duration of the video.
+	var out bytes.Buffer
+	cmd := exec.Command("ffprobe", "-loglevel", "error", "-of", "csv=p=0", "-show_entries", "format=duration", mediaPath)
+	cmd.Stdout = &out
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+	duration, err := strconv.ParseFloat(strings.TrimSpace(out.String()), 64)
+	if err != nil {
+		return err
+	}
+	// Get middle frame of the video.
+	ss := int(duration / 2)
+	cmd = exec.Command("ffmpeg", "-ss", strconv.Itoa(ss), "-i", mediaPath, "-vf", fmt.Sprintf("scale=%s", config.Thumb.Size), "-vframes", "1", "-y", thumbPath)
 	return cmd.Run()
 }
 
@@ -33,6 +51,7 @@ func WriteThumb(mediaPath string, thumbPath string) {
 	tasks.Submit(func() {
 		defer thumbTasks.Delete(mediaPath)
 		if err := GenerateThumb(mediaPath, thumbPath); err != nil {
+			log.Printf("fail to generate thumbnail for '%s': %v", mediaPath, err)
 			return
 		}
 	})
