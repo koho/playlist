@@ -4,11 +4,13 @@ import (
 	"crypto/md5"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
 	"path"
 	"path/filepath"
+	"sort"
 	"strings"
 )
 
@@ -17,11 +19,15 @@ const template = `#EXTINF:-1 tvg-id="" tvg-logo="%s" group-title="%s",%s
 `
 
 func getPlayList(c *gin.Context, group Group) {
-	files, err := os.ReadDir(group.Path)
+	files, err := ioutil.ReadDir(group.Path)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
+	// Sorting by the last modified time.
+	sort.Slice(files, func(i, j int) bool {
+		return files[i].ModTime().After(files[j].ModTime())
+	})
 	thumbDir := filepath.Join(config.Thumb.Dir, group.Name)
 	if err = os.MkdirAll(thumbDir, 0755); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
