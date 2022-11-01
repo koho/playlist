@@ -1,39 +1,21 @@
 package main
 
 import (
-	"bytes"
 	"github.com/samber/lo"
-	"image"
-	"image/jpeg"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sync"
 )
 
 var Extension = []string{".avi", ".flac", ".flv", ".h261", ".h26l", ".h264", ".264", ".hevc", ".h265", ".265", ".mod", ".m4v", ".mkv", ".mov", ".mp4", ".m4a", ".3gp", ".3g2", ".m2a", ".ogg"}
 
-type Thumb struct {
-	src image.Image
-	ext string
-}
-
-func GenerateThumb(path string) (*Thumb, error) {
-	if !IsVideo(path) {
-		return nil, os.ErrInvalid
+func GenerateThumb(mediaPath string, thumbPath string) error {
+	if !IsVideo(mediaPath) {
+		return os.ErrInvalid
 	}
-	var err error
-	var img image.Image
-	cmd := exec.Command("ffmpeg", "-i", path, "-vf", "thumbnail,scale=640:360", "-vframes", "1", "-f", "image2", "-", "-y")
-	var buffer bytes.Buffer
-	cmd.Stdout = &buffer
-	if err = cmd.Run(); err != nil {
-		return nil, err
-	}
-	img, err = jpeg.Decode(&buffer)
-	if err != nil {
-		return nil, err
-	}
-	return &Thumb{img, filepath.Ext(path)}, nil
+	cmd := exec.Command("ffmpeg", "-i", mediaPath, "-vf", "thumbnail=200,scale=640:360", "-vframes", "1", "-y", thumbPath)
+	return cmd.Run()
 }
 
 func IsVideo(path string) bool {
@@ -41,15 +23,17 @@ func IsVideo(path string) bool {
 	return lo.Contains(Extension, ext)
 }
 
-func WriteThumb(mediaPath string, thumbPath string) error {
-	thumb, err := GenerateThumb(mediaPath)
-	if err != nil {
-		return err
+var thumbTasks sync.Map
+
+func WriteThumb(mediaPath string, thumbPath string) {
+	if _, ok := thumbTasks.Load(mediaPath); ok {
+		return
 	}
-	f, err := os.Create(thumbPath)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	return jpeg.Encode(f, thumb.src, nil)
+	thumbTasks.Store(mediaPath, struct{}{})
+	tasks.Submit(func() {
+		defer thumbTasks.Delete(mediaPath)
+		if err := GenerateThumb(mediaPath, thumbPath); err != nil {
+			return
+		}
+	})
 }

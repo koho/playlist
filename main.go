@@ -2,10 +2,22 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/panjf2000/ants/v2"
+	"log"
 	"path/filepath"
+	"runtime"
 )
 
+var tasks *ants.Pool
+
 func main() {
+	var err error
+	tasks, err = ants.NewPool(runtime.NumCPU() - 1)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer tasks.Release()
+
 	r := gin.Default()
 
 	for _, g := range config.Groups {

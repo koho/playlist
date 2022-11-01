@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/gin-gonic/gin v1.8.1
+	github.com/panjf2000/ants/v2 v2.6.0
 	github.com/samber/lo v1.33.0
 	gopkg.in/yaml.v3 v3.0.1
 )
