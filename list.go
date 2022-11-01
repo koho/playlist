@@ -59,8 +59,8 @@ func getPlayList(c *gin.Context, group Group) {
 		mediaURL := ""
 		if group.URL == "" {
 			mediaURL = fmt.Sprintf("%s://%s", scheme, path.Join(c.Request.Host, uri, "data", url.PathEscape(f.Name())))
-		} else {
-			mediaURL = path.Join(group.URL, url.PathEscape(f.Name()))
+		} else if mediaURL, err = url.JoinPath(group.URL, url.PathEscape(f.Name())); err != nil {
+			continue
 		}
 		name, _ := SplitExt(mediaPath)
 		ret.WriteString(fmt.Sprintf(template, thumbURL, group.Name, name, mediaURL))
