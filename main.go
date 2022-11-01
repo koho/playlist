@@ -15,7 +15,7 @@ func main() {
 		}
 		group.Static("/thumbs", filepath.Join(config.Thumbs, g.Name))
 		group.Static("/data", g.Path)
-		group.GET("/", func(gp Group) gin.HandlerFunc {
+		group.GET("", func(gp Group) gin.HandlerFunc {
 			return func(c *gin.Context) {
 				getPlayList(c, gp)
 			}

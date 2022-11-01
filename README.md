@@ -60,7 +60,6 @@ server {
     proxy_set_header  X-Forwarded-Proto $scheme;
     proxy_set_header  Host              $http_host;
     proxy_set_header  X-Original-URI    $request_uri;
-    proxy_redirect    /                 /playlist/;
   }
 }
 ```
