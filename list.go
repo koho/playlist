@@ -44,11 +44,7 @@ func getPlayList(c *gin.Context, group Group) {
 		thumbName := fid + ".jpg"
 		thumbPath := filepath.Join(thumbDir, thumbName)
 		if _, err = os.Stat(thumbPath); err != nil && os.IsNotExist(err) {
-			if thumb, err := GenerateThumb(mediaPath); err == nil {
-				if err = WriteThumb(thumb.src, thumbPath); err != nil {
-					thumbPath = ""
-				}
-			}
+			go WriteThumb(mediaPath, thumbPath)
 		}
 		// Handle proxy settings.
 		scheme := c.Request.Header.Get("X-Forwarded-Proto")

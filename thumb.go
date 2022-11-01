@@ -41,11 +41,15 @@ func IsVideo(path string) bool {
 	return lo.Contains(Extension, ext)
 }
 
-func WriteThumb(image image.Image, path string) error {
-	f, err := os.Create(path)
+func WriteThumb(mediaPath string, thumbPath string) error {
+	thumb, err := GenerateThumb(mediaPath)
+	if err != nil {
+		return err
+	}
+	f, err := os.Create(thumbPath)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
-	return jpeg.Encode(f, image, nil)
+	return jpeg.Encode(f, thumb.src, nil)
 }
