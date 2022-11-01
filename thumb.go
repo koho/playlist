@@ -23,7 +23,7 @@ func GenerateThumb(path string) (*Thumb, error) {
 	}
 	var err error
 	var img image.Image
-	cmd := exec.Command("ffmpeg", "-i", path, "-vf", "thumbnail=2000", "-vframes", "1", "-f", "image2", "-", "-y")
+	cmd := exec.Command("ffmpeg", "-i", path, "-vf", "thumbnail,scale=640:360", "-vframes", "1", "-f", "image2", "-", "-y")
 	var buffer bytes.Buffer
 	cmd.Stdout = &buffer
 	if err = cmd.Run(); err != nil {
