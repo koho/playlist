@@ -13,7 +13,7 @@ import (
 	"sync"
 )
 
-var Extension = []string{".avi", ".flac", ".flv", ".h261", ".h26l", ".h264", ".264", ".hevc", ".h265", ".265", ".mod", ".m4v", ".mkv", ".mov", ".mp4", ".m4a", ".3gp", ".3g2", ".m2a", ".ogg", ".wmv"}
+var Extension = []string{".avi", ".flac", ".flv", ".h261", ".h26l", ".h264", ".264", ".hevc", ".h265", ".265", ".mod", ".m4v", ".mkv", ".mov", ".mp4", ".m4a", ".3gp", ".3g2", ".m2a", ".ogg", ".wmv", ".ts"}
 
 func GenerateThumb(mediaPath string, thumbPath string) error {
 	if !IsVideo(mediaPath) {
